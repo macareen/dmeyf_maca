@@ -3,7 +3,7 @@ require("data.table")
 require("rpart")
 
 #Aqui se debe poner la carpeta de la computadora local
-setwd("M:\\")  #Establezco el Working Directory
+setwd("C:/Users/macar/Documents/Educacion/Maestria_DM/2021_2C/DMEF")  #Establezco el Working Directory
 
 #cargo los datos de 202009 que es donde voy a ENTRENAR el modelo
 dtrain  <- fread("./datasetsOri/paquete_premium_202009.csv")
