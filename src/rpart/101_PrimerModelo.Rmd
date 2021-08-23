@@ -92,3 +92,5 @@ fwrite( entrega, file="./kaggle/K101_001.csv", sep="," )
 ```
 
 # Modelos míos
+
+
