@@ -16,10 +16,11 @@ output:
     df_print: paged
     #toc: yes
 header-includes: \usepackage[spanish]{babel}
-
 ---
 
 ```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = "~/Educacion/Maestria_DM/2021_2C/DMEF")
+#set wd para chunks
 knitr::opts_chunk$set(echo = F)
 knitr::opts_chunk$set(message = F)
 knitr::opts_chunk$set(warning = F)
@@ -36,21 +37,38 @@ library(table1)
 library(ggplot2)
 library(GGally)
 library(ggpubr)
-library("data.table")
+require("data.table")
 library("rpart")
+
 ```
 
-
-
-```{r}
-#idk si es necesario, estoy trabajando desde el proyecto pero...
-setwd("C:/Users/macar/Documents/Educacion/Maestria_DM/2021_2C/DMEF") 
-```
 
 ```{r}
 dtrain  <- fread("./datasetsOri/paquete_premium_202009.csv")
 
 ```
+## basic eda
+```{r}
+basic_eda <- function(data)
+{
+status(data)
+freq(data)
+profiling_num(data)
+plot_num(data)
+describe(data)
+}
+
+library(tidyverse)
+library(funModeling)
+library(Hmisc)
+```
+
+## codebook
+```{r codebook,eval=FALSE,message=F, warning=F}
+library(dataMaid)
+makeCodebook(dtrain)
+```
+
 
 # Modelo original profesores
 
@@ -64,9 +82,7 @@ modelo  <- rpart("clase_ternaria ~ .",
                  maxdepth=   8 )
 ```
 
-
-
-## Aplico al modelo  a los datos de 202011
+## Aplico al modelo a los datos de 202011
 
 ```{r}
 #cargo los datos de 202011, que es donde voy a APLICAR el modelo
@@ -76,7 +92,6 @@ dapply  <- fread("./datasetsOri/paquete_premium_202011.csv")
 prediccion  <- predict( modelo, dapply , type = "prob") #aplico el modelo
 
 ```
-
 
 ```{r}
 #prediccion es una matriz con TRES columnas, llamadas "BAJA+1", "BAJA+2"  y "CONTINUA"
@@ -92,5 +107,4 @@ fwrite( entrega, file="./kaggle/K101_001.csv", sep="," )
 ```
 
 # Modelos míos
-
 
