@@ -1,0 +1,124 @@
+nuevas variables:
+
+ganancias_tot_banco: suma de 
+mrentabilidad 
+mrentabilidad_annual
+mcomisiones
+mactivos_margen
+mpasivos_margen
+lo que el cliente le aportó al banco. me llama la atención que hay negativos. pq?
+
+consumos:
+mautoservicio
+mtarjeta_visa_consumo
+mtarjeta_master_consumo
+
+deuda:
+mprestamos_personales
+mprestamos_prendarios
+mprestamos_hipotecarios
+
+inversiones:
+mplazo_fijo_dolares
+mplazo_fijo_pesos
+minversion1_pesos
+minversion1_dolares
+minversion2
+
+
+seguros:
+cseguro_vida
+cseguro_auto
+cseguro_vivienda
+cseguro_accidentes_personales
+
+debitos:
+mcuenta_debitos_automaticos
+mtarjeta_visa_debitos_automaticos
+mttarjeta_master_debitos_automaticos
+mpagodeservicios
+mpagomiscuentas
+
+
+descuentos:
+mcajeros_propios_descuentos
+mtarjeta_visa_descuentos
+mtarjeta_master_descuentos
+
+
+comisiones:
+mcomisiones_mantenimiento
+mcomisiones_otras
+
+
+movimiento de dinero: cambios a moneda extranjera, transferencias, extracciones y depósitos (no incluye cheques rechazados)
+mforex_buy
+mforex_sell
+mtransferencias_recibidas
+mtransferencias_emitidas
+mextraccion_autoservicio
+mcheques_depositados
+mcheques_emitidos
+
+comunicacion:
+ccallcenter_transacciones (transacciones o reclamos?)
+ccajas_consultas
+
+cantidad_transacciones:
+chomebanking_transacciones
+ccallcenter_transacciones 
+ccajas_transacciones (no se si no incluye a las 3 de abajo)
+ccajas_depositos
+ccajas_extracciones
+ccajas_otras
+catm_trx
+cmobile_app_trx
+
+(se podría hacer una sub cant trans que sea homebanking callcenter y mobile)
+
+atm:
+matm
+matm_other
+
+
+Visa/Master:
+
+any_delinquency: si Master_delinquency o Misa_delinquency == 1
+
+max_mfinanciacion: max(Master_mfinanciacion_limite, Visa_mfinanciacion_limite)
+
+mean_mfinanciacion: mean(Master_mfinanciacion_limite, Visa_mfinanciacion_limite)
+
+max_mlimitecompra: max(Master_mlimitecompra, Visa_mlimitecompra)
+
+mean_mlimitecompra: mean(Master_mlimitecompra, Visa_mlimitecompra)
+
+sum_mlimitecompra: sum(Master_mlimitecompra, Visa_mlimitecompra)
+
+saldo_tarjetas: suma
+Master_msaldototal
+Visa_msaldototal
+
+consumos_tarjetas: suma (idk si no es igual a consumos de arriba)
+Master_mconsumospesos
+Master_mconsumosdolares
+Visa_mconsumospesos
+Visa_mconsumosdolares
+Master_madelantopesos
+Master_madelantodolares
+Visa_madelantopesos
+Visa_madelantodolares
+
+
+dif_consumo_limite: (es saldo???) sum_mlimitecompra-consumos_tarjetas
+ 				o sum_mlimitecompra - (master_mconsumototal+visa_mconsumototal)
+
+
+dicotomizaciones:
+edad (jovenes, adultos, adultos mayores)
+antiguedad (menos de 12 meses, entre 12 y 60 meses, entre 60 y 120 meses, más de 120 meses)
+rentabilidad (positiva, negativa) -> ver si las que no tiene sentido que sean negativas conviene tomarlos como na/los de menos de 0 como el q1
+
+
+mcuenta_corriente_adicional y mcuenta_corriente están centradas en 0, con muchos muy negativos tiene lógica??
+
