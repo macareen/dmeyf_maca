@@ -45,7 +45,8 @@ gc(verbose = FALSE)
 library( "data.table")
 library("ggplot2")
 
-carpeta_datasetsOri <-  "../../../datasetsOri/"
+
+carpeta_datasetsOri <-  "C:/Users/macar/Documents/Educacion/Maestria_DM/2021_2C/DMEF/datasetsOri/"
 septiembre <- "paquete_premium_202009.csv"
 
 ds <- fread(paste0(carpeta_datasetsOri, septiembre,collapse = ""), header=TRUE, showProgress = FALSE)
@@ -499,7 +500,8 @@ Es difícil pensar 100 números, voy por la fácil de consumir un *webservice* q
 # curl::curl_download("https://www.random.org/integer-sets/?sets=1&num=100&min=100000&max=1000000&commas=on&order=index&format=plain&rnd=new", "cache/02_DT_semillas.txt")
 
 # Se carga el archivo con las semillas
-semillas <- as.vector(unlist(fread("cache/02_DT_semillas.txt")))
+semillas <- c(887113,894689,895553,896723,900001)
+        #as.vector(unlist(fread("cache/02_DT_semillas.txt")))
 ```
 
 ```{r}
