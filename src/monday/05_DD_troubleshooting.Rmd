@@ -75,7 +75,6 @@ Vamos a usar una alternativa al **xgboost**, un **lightgbm**
 Vamos a usar la parametrización que **Gustavo** encontró y demuestra ser muy útil.
 
 ```{r}
-ds
 ds_train  <- lgb.Dataset( data=  data.matrix(ds), label= clase_binaria )
 
 ganancia_lgb <- function(probs, datos){

@@ -20,6 +20,7 @@ septiembre <- "paquete_premium_202009.csv"
 
 
 ds <- fread(paste0(carpeta_datasetsOri, septiembre,collapse = ""), showProgress = FALSE)
+
 clase_binaria <- ifelse(ds$clase_ternaria == "BAJA+2", 1, 0)
 ds$clase_ternaria <- NULL
 
