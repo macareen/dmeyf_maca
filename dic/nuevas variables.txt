@@ -1,12 +1,8 @@
 nuevas variables:
 
-ganancias_tot_banco: suma de 
-mrentabilidad 
-mrentabilidad_annual
-mcomisiones
-mactivos_margen
-mpasivos_margen
-lo que el cliente le aportó al banco. me llama la atención que hay negativos. pq?
+
+
+ratio rentabilidad (total/anual)
 
 consumos:
 mautoservicio
@@ -83,7 +79,7 @@ matm_other
 
 Visa/Master:
 
-any_delinquency: si Master_delinquency o Misa_delinquency == 1
+any_delinquency: si Master_delinquency o Visa_delinquency == 1
 
 max_mfinanciacion: max(Master_mfinanciacion_limite, Visa_mfinanciacion_limite)
 
@@ -113,6 +109,7 @@ Visa_madelantodolares
 dif_consumo_limite: (es saldo???) sum_mlimitecompra-consumos_tarjetas
  				o sum_mlimitecompra - (master_mconsumototal+visa_mconsumototal)
 
+cuotas en la tarjeta/debitos automáticos tarj 
 
 dicotomizaciones:
 edad (jovenes, adultos, adultos mayores)

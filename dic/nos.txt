@@ -1,0 +1,4 @@
+numero_de_cliente
+foto_mes
+((cliente vip
+internet

@@ -1,11 +1,13 @@
 rm( list=ls() )  #remove all objects
 gc()             #garbage collection
 
+
+require("lightgbm")
 require("data.table")
 require("rlist")
 require("yaml")
 
-require("lightgbm")
+
 
 #paquetes necesarios para la Bayesian Optimization
 require("DiceKriging")
@@ -31,11 +33,11 @@ kBO_iter    <-  150   #cantidad de iteraciones de la Optimizacion Bayesiana
 hs <- makeParamSet( 
         makeNumericParam("learning_rate",    lower= 0.01 , upper=    0.1),
         makeNumericParam("feature_fraction", lower= 0.2  , upper=    1.0),
-        makeIntegerParam("min_data_in_leaf", lower= 0    , upper= 8000),
+        makeIntegerParam("min_data_in_leaf", lower= 5    , upper= 8000),
         makeIntegerParam("num_leaves",       lower=16L   , upper= 1024L)
 )
 
-campos_malos  <- c( "ccajas_transacciones", "Master_mpagominimo" )   #aqui se deben cargar todos los campos culpables del Data Drifting
+campos_malos  <- c("clase_ternaria", "clase01", "ccajas_transacciones", "Master_mpagominimo" )  #aqui se deben cargar todos los campos culpables del Data Drifting
 
 semillas <- c(887113, 894689, 895553, 896723, 900001)
 ksemilla_azar  <- semillas[3]

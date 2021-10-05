@@ -6,12 +6,19 @@
 #limpio la memoria
 rm( list=ls() )
 gc()
-
-require("data.table")
 require("lightgbm")
+require("data.table")
+
+
 
 setwd("~/buckets/b1/crudoB" )  #establezco la carpeta donde voy a trabajar
 
+switch ( Sys.info()[['sysname']],
+         Windows = { directory.root  <-  "C:/Users/macar/Documents/Educacion/Maestria_DM/2021_2C/DMEF" },   #Windows
+         Linux   = { directory.root  <-  "~/buckets/b1/" } #Google Cloud
+)
+#defino la carpeta donde trabajo
+setwd( directory.root )
 #cargo el dataset
 dataset  <- fread("./datasetsOri/paquete_premium_202009.csv")
 

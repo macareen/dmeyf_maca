@@ -1,0 +1,9 @@
+ver eda noviembre porque hay algunos que están invertidas (por ej internet)
+descuentos no está poblada en septiembre pero si en noviembre
+discretizar en deciles
+CAMBIAR PUNTO DE CORTE SI JUNTO B1 Y B2
+mirar el zulip a ver qué dicen sobre el eda, data drifting
+FE: generar nuevas variables, interacción de 2 variables (multi y div. ver importancia), transformar
+
+parametros extra: max bin leer parametros de xgboost y lgbm y encontrar perlitas que pueda poner a buscar en ob
+bagging fraction
