@@ -22,6 +22,7 @@ EnriquecerDataset <- function( dataset , arch_destino )
 {
         columnas_originales <-  copy(colnames( dataset ))
         
+        
         dataset[ , mv_status01       := pmax( Master_status,  Visa_status, na.rm = TRUE) ]
         dataset[ , mv_status02       := Master_status +  Visa_status ]
         dataset[ , mv_status03       := pmax( ifelse( is.na(Master_status), 10, Master_status) , ifelse( is.na(Visa_status), 10, Visa_status) ) ]
@@ -78,6 +79,42 @@ EnriquecerDataset <- function( dataset , arch_destino )
         dataset[ , mvr_mconsumototal       := mv_mconsumototal  / mv_mlimitecompra ]
         dataset[ , mvr_mpagominimo         := mv_mpagominimo  / mv_mlimitecompra ]
         
+        #------- variables mias
+        
+        dataset[ , cut_edad         := cut(cliente_edad,4) ]
+        dataset[ , cut_antiguedad         := cut(cliente_antiguedad,3) ]
+        dataset[ , cut_rent         := cut(mrentabilidad,2) ]
+        dataset[ , cut_rent_an         := cut(mrentabilidad_annual,2) ]
+        dataset[ , cut_cc         := cut(mcuenta_corriente,3) ]
+        dataset[ , cut_ca         := cut(mcaja_ahorro,3) ]
+        dataset[ , cut_consumo_t         := cut(mv_mconsumototal,3) ]
+        
+        dataset[ , consumos          := rowSums( cbind( mautoservicio, mtarjeta_master_consumo ,mtarjeta_visa_consumo) , na.rm=TRUE ) ]
+        dataset[ , deuda          := rowSums( cbind( mprestamos_personales,  mprestamos_prendarios,mprestamos_hipotecarios) , na.rm=TRUE ) ]
+        dataset[ , inversiones        := rowSums( cbind( mplazo_fijo_dolares,  mplazo_fijo_pesos,minversion1_pesos,minversion1_dolares,minversion2) , na.rm=TRUE ) ]
+        dataset[ , seguros       := rowSums( cbind( cseguro_vida,  cseguro_auto,cseguro_vivienda,cseguro_accidentes_personales) , na.rm=TRUE ) ]
+        
+        
+        dataset[ , debitos          := rowSums( cbind(mcuenta_debitos_automaticos,  mttarjeta_visa_debitos_automaticos,mttarjeta_master_debitos_automaticos,mpagodeservicios,mpagomiscuentas) , na.rm=TRUE ) ]
+        dataset[ , descuentos          := rowSums( cbind(mcajeros_propios_descuentos, mtarjeta_visa_descuentos, mtarjeta_master_descuentos) , na.rm=TRUE ) ]
+        dataset[ , comisiones        := rowSums( cbind(mcomisiones_mantenimiento, mcomisiones_otras) , na.rm=TRUE ) ]
+        dataset[ , movimientos       := rowSums( cbind(mforex_buy,mforex_sell, mtransferencias_recibidas, mtransferencias_emitidas,mextraccion_autoservicio,mcheques_depositados, mcheques_emitidos) , na.rm=TRUE ) ]
+        
+        dataset[ , comunicacion          := rowSums( cbind( ccallcenter_transacciones, ccajas_consultas) , na.rm=TRUE ) ]
+        dataset[ , cantidad_transacciones          := rowSums( cbind(chomebanking_transacciones,ccallcenter_transacciones,ccajas_transacciones,ccajas_depositos,ccajas_extracciones, ccajas_otras,catm_trx,cmobile_app_trx) , na.rm=TRUE ) ]
+        dataset[ , atm        := rowSums( cbind( matm,matm_other) , na.rm=TRUE ) ]
+        
+        dataset[ , cut_consumos         := cut(consumos,4) ]
+        dataset[ , cut_deuda         := cut(deuda,3) ]
+        dataset[ , cut_inversiones         := cut(inversiones,3) ]
+        dataset[ , cut_seguros         := cut(seguros,2) ]
+        dataset[ , cut_debitos         := cut(debitos,3) ]
+        dataset[ , cut_comisiones         := cut(comisiones,3) ]
+        dataset[ , cut_movimientos         := cut(movimientos,5) ]
+        dataset[ , cut_atm         := cut(atm,5) ]
+        #-------
+        
+        
         #valvula de seguridad para evitar valores infinitos
         #paso los infinitos a NULOS
         infinitos      <- lapply(names(dataset),function(.name) dataset[ , sum(is.infinite(get(.name)))])
@@ -119,7 +156,33 @@ dir.create( "./datasets/" )
 dataset1  <- fread("./datasetsOri/paquete_premium_202009.csv")
 dataset2  <- fread("./datasetsOri/paquete_premium_202011.csv")
 
-EnriquecerDataset( dataset1, "./datasets/paquete_premium_202009_ext.csv" )
-EnriquecerDataset( dataset2, "./datasets/paquete_premium_202011_ext.csv" )
+#----------------------- 06bp
+# ds<-dataset1
+# clase_binaria <- ifelse(ds$clase_ternaria == "CONTINUA", 0, 1)
+# ds$clase_ternaria <- NULL
+# 
+# library(xgboost)
+# 
+# dtrain <- xgb.DMatrix(data=data.matrix(ds), label=  clase_binaria, missing=NA)
+# param_fe <- list(max_depth=2, eta=1, silent=1, objective='binary:logistic')
+# nrounds = 5
+# 
+# bst = xgb.train(params = param_fe, data = dtrain, nrounds = nrounds)
+# 
+# new.features.train <- xgb.create.features(model = bst, data.matrix(ds))
+# 
+# dataset1<-as.data.table(data.matrix(new.features.train))
+# dataset1<-cbind(dataset1,clase_binaria)
+# 
+# 
+# dataset2<-cbind(dataset2,clase_binaria=NA)
+#------------------------
+
+
+
+
+
+EnriquecerDataset( dataset1, "./datasets/paquete_premium_202009_fe.csv" )
+EnriquecerDataset( dataset2, "./datasets/paquete_premium_202011_fe.csv" )
 
 quit( save="no")

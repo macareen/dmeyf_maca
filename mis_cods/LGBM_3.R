@@ -24,10 +24,13 @@ setwd( directory.root )
 
 
 kexperimento  <- 211005   #NA si se corre la primera vez, un valor concreto si es para continuar procesando
-kscript           <- "lgb_prob_auto_m"
+kscript           <- "lgbm"
 karch_generacion  <- "./datasets/paquete_premium_202009_stk.csv"
+
+karch_generacion_simple  <- "./datasets/paquete_premium_202009_fe.csv"
 karch_aplicacion  <- "./datasets/paquete_premium_202011_fe.csv"
-kBO_iter    <-  150   #cantidad de iteraciones de la Optimizacion Bayesiana
+
+kBO_iter    <-  5  #cantidad de iteraciones de la Optimizacion Bayesiana
 
 #Aqui se cargan los hiperparametros
 hs <- makeParamSet( 
@@ -37,7 +40,7 @@ hs <- makeParamSet(
         makeIntegerParam("num_leaves",       lower=16L   , upper= 1024L)
 )
 
-campos_malos  <- c("clase_ternaria", "clase01", "ccajas_transacciones", "Master_mpagominimo", "internet","ccajeros_propios_descuentos" ,         "mcajeros_propios_descuentos" , "ctarjeta_visa_descuentos",             "mtarjeta_visa_descuentos","ctarjeta_master_descuentos",           "mtarjeta_master_descuentos" )  #aqui se deben cargar todos los campos culpables del Data Drifting
+campos_malos  <- c("clase_ternaria", "clase_binaria", "ccajas_transacciones", "Master_mpagominimo", "internet","ccajeros_propios_descuentos" ,         "mcajeros_propios_descuentos" , "ctarjeta_visa_descuentos",             "mtarjeta_visa_descuentos","ctarjeta_master_descuentos",           "mtarjeta_master_descuentos" )  #aqui se deben cargar todos los campos culpables del Data Drifting
 
 semillas <- c(887113, 894689, 895553, 896723, 900001)
 ksemilla_azar  <- semillas[3]
@@ -148,6 +151,38 @@ EstimarGanancia_lightgbm  <- function( x )
                              verbose= -100
         )
         
+        #--------------
+        #ds_train_mm  <- lgb.Dataset( data= data.matrix(dataset), label= clase_binaria )
+       # mm <- lgb.train(dtrain, params = param_completo, verbose = -1)
+        #--------------
+        #-----------------------------
+        
+        
+        
+        params_gbdt <- list( objective= "binary", max_bin= 15, min_data_in_leaf= 4000, learning_rate= 0.05 )
+        params_rf <- list(objective = "binary",  boosting_type = "rf", bagging_freq = 1, bagging_fraction = 0.66, feature_fraction = 0.4)
+        params_goss <- list(objective = "binary", learning_rate = 0.05, top_rate = 0.5, other_rate = 0.1, feature_fraction_bynode = 0.2, boosting_type = "goss")
+        
+        # Los folds son para siempre! 
+        folds <- splitTools::create_folds(clase_binaria, k = 5, seed = 17)
+        
+        print("llegó hasta antes de m1-m3")
+        ds_train  <- lgb.Dataset( data=  data.matrix(ds), label= clase_binaria )
+        m1 <- lgb.train(ds_train, params = params_gbdt, verbose = -1)
+        m2 <- lgb.train(ds_train, params = params_rf, verbose = -1)
+        m3 <- lgb.train(ds_train, params = params_goss, verbose = -1)
+        
+        print("llegó hasta antes de m1_scores")
+        m1_scores <- predict(m1,data.matrix(dapply))
+        m2_scores <- predict(m2,data.matrix(dapply))
+        m3_scores <- predict(m3,data.matrix(dapply))
+        
+        print("llegó a cambiar dapply")
+        dapply <- cbind(dapply,m1_scores, m2_scores,m3_scores)
+        
+        
+
+        #---------------------------
         
         ganancia  <- unlist(modelocv$record_evals$valid$ganancia$eval)[ modelocv$best_iter ]
         
@@ -157,6 +192,7 @@ EstimarGanancia_lightgbm  <- function( x )
         param_completo$num_iterations  <- modelocv$best_iter  #asigno el mejor num_iterations
         param_completo["early_stopping_rounds"]  <- NULL
         param_completo["prob_corte"]  <- mean( VPROBS_CORTE )
+        
         
         #si tengo una ganancia superadora, genero el archivo para Kaggle
         if(  ganancia > GLOBAL_ganancia_max )
@@ -170,13 +206,14 @@ EstimarGanancia_lightgbm  <- function( x )
                                      verbose= -100
                 )
                 
+                
                 #calculo la importancia de variables
                 tb_importancia  <- lgb.importance( model= modelo )
                 fwrite( tb_importancia, 
                         file= paste0(kimp, "imp_", GLOBAL_iteracion, ".txt"),
                         sep="\t" )
                 
-                prediccion  <- predict( modelo, data.matrix( dapply[  , campos_buenos, with=FALSE]) )
+                 prediccion  <- predict( modelo, data.matrix( dapply[  , campos_buenos, with=FALSE]) )
                 
                 Predicted  <- as.integer( prediccion > param_completo$prob_corte )
                 
@@ -212,8 +249,7 @@ GLOBAL_ganancia_max  <-  -Inf
 GLOBAL_iteracion  <- 0
 
 #si ya existe el archivo log, traigo hasta donde llegue
-if( file.exists(klog) )
-{
+if( file.exists(klog) ){
         tabla_log  <- fread( klog)
         GLOBAL_iteracion  <- nrow( tabla_log ) -1
         GLOBAL_ganancia_max  <- tabla_log[ , max(ganancia) ]
@@ -222,24 +258,31 @@ if( file.exists(klog) )
 
 #cargo el dataset donde voy a entrenar el modelo
 dataset  <- fread(karch_generacion)
+ds  <- fread(karch_generacion_simple)
+
+clase_binaria<-dataset$clase_binaria
+
 
 #creo la clase_binaria2   1={ BAJA+2}  0={CONTINUA,BAJA+1}
-dataset[ , clase01:= ifelse( clase_ternaria=="CONTINUA", 0, 1 ) ]
+dataset[ , clase_binaria:= ifelse( clase_ternaria=="CONTINUA", 0, 1 ) ]
+ds[ , clase_binaria:= ifelse( clase_ternaria=="CONTINUA", 0, 1 ) ]
 
 
 
 #los campos que se van a utilizar
-campos_buenos  <- setdiff( colnames(dataset), c("clase_ternaria","clase01", campos_malos) )
+campos_buenos  <- setdiff( colnames(dataset), c("clase_ternaria","clase_binaria","clase_binaria", campos_malos) )
 
 #dejo los datos en el formato que necesita LightGBM
 #uso el weight como un truco ESPANTOSO para saber la clase real
 dtrain  <- lgb.Dataset( data= data.matrix(  dataset[ , campos_buenos, with=FALSE]),
-                        label= dataset$clase01,
+                        label= dataset$clase_binaria,
                         weight=  dataset[ , ifelse(clase_ternaria=="BAJA+2", 1.0000001, 1.0)] )
 
 
 #cargo los datos donde voy a aplicar el modelo
 dapply  <- fread(karch_aplicacion, stringsAsFactors= TRUE) #leo los datos donde voy a aplicar el modelo
+dapply$clase_ternaria<-NA
+dapply$clase_binaria<-NA
 
 #Aqui comienza la configuracion de la Bayesian Optimization
 

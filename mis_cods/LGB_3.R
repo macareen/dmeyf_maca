@@ -24,10 +24,10 @@ setwd( directory.root )
 
 
 kexperimento  <- 211005   #NA si se corre la primera vez, un valor concreto si es para continuar procesando
-kscript           <- "lgb_prob_auto_m"
+kscript           <- "LGB_3"
 karch_generacion  <- "./datasets/paquete_premium_202009_stk.csv"
 karch_aplicacion  <- "./datasets/paquete_premium_202011_fe.csv"
-kBO_iter    <-  150   #cantidad de iteraciones de la Optimizacion Bayesiana
+kBO_iter    <-  3   #cantidad de iteraciones de la Optimizacion Bayesiana
 
 #Aqui se cargan los hiperparametros
 hs <- makeParamSet( 
@@ -37,7 +37,7 @@ hs <- makeParamSet(
         makeIntegerParam("num_leaves",       lower=16L   , upper= 1024L)
 )
 
-campos_malos  <- c("clase_ternaria", "clase01", "ccajas_transacciones", "Master_mpagominimo", "internet","ccajeros_propios_descuentos" ,         "mcajeros_propios_descuentos" , "ctarjeta_visa_descuentos",             "mtarjeta_visa_descuentos","ctarjeta_master_descuentos",           "mtarjeta_master_descuentos" )  #aqui se deben cargar todos los campos culpables del Data Drifting
+campos_malos  <- c("clase_ternaria", "clase_binaria", "ccajas_transacciones", "Master_mpagominimo", "internet","ccajeros_propios_descuentos" ,         "mcajeros_propios_descuentos" , "ctarjeta_visa_descuentos",             "mtarjeta_visa_descuentos","ctarjeta_master_descuentos",           "mtarjeta_master_descuentos" )  #aqui se deben cargar todos los campos culpables del Data Drifting
 
 semillas <- c(887113, 894689, 895553, 896723, 900001)
 ksemilla_azar  <- semillas[3]
@@ -224,18 +224,25 @@ if( file.exists(klog) )
 dataset  <- fread(karch_generacion)
 
 #creo la clase_binaria2   1={ BAJA+2}  0={CONTINUA,BAJA+1}
-dataset[ , clase01:= ifelse( clase_ternaria=="CONTINUA", 0, 1 ) ]
+dataset[ , clase_binaria:= ifelse( clase_ternaria=="CONTINUA", 0, 1 ) ]
 
 
 
 #los campos que se van a utilizar
-campos_buenos  <- setdiff( colnames(dataset), c("clase_ternaria","clase01", campos_malos) )
+campos_buenos  <- setdiff( colnames(dataset), c("clase_ternaria","clase_binaria", campos_malos) )
 
 #dejo los datos en el formato que necesita LightGBM
 #uso el weight como un truco ESPANTOSO para saber la clase real
 dtrain  <- lgb.Dataset( data= data.matrix(  dataset[ , campos_buenos, with=FALSE]),
-                        label= dataset$clase01,
+                        label= dataset$clase_binaria,
                         weight=  dataset[ , ifelse(clase_ternaria=="BAJA+2", 1.0000001, 1.0)] )
+ds_train_mm<-dtrain
+mm <- lgb.train(ds_train_mm, params = params_simple, verbose = -1)
+
+ds_train  <- lgb.Dataset( data=  data.matrix(karch_generacion), label= clase_binaria )
+m1 <- lgb.train(ds_train, params = params_gbdt, verbose = -1)
+m2 <- lgb.train(ds_train, params = params_rf, verbose = -1)
+m3 <- lgb.train(ds_train, params = params_goss, verbose = -1)
 
 
 #cargo los datos donde voy a aplicar el modelo
@@ -243,7 +250,9 @@ dapply  <- fread(karch_aplicacion, stringsAsFactors= TRUE) #leo los datos donde 
 
 #Aqui comienza la configuracion de la Bayesian Optimization
 
+#------------------
 
+#----------
 funcion_optimizar  <- EstimarGanancia_lightgbm   #la funcion que voy a maximizar
 
 configureMlr( show.learner.output= FALSE)
