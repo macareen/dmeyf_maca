@@ -2,3 +2,6 @@ numero_de_cliente
 foto_mes
 ((cliente vip
 internet
+
+github -> unir los dos 
+correr 823 hacer 824, 847 rapido correr, fe/

@@ -7,6 +7,7 @@ rm( list=ls() )
 gc()
 
 require("data.table")
+library(dplyr)
 
 switch ( Sys.info()[['sysname']],
          Windows = { directory.root  <-  "C:/Users/macar/Documents/Educacion/Maestria_DM/2021_2C/DMEF" },   #Windows
@@ -112,6 +113,16 @@ EnriquecerDataset <- function( dataset , arch_destino )
         dataset[ , cut_comisiones         := cut(comisiones,3) ]
         dataset[ , cut_movimientos         := cut(movimientos,5) ]
         dataset[ , cut_atm         := cut(atm,5) ]
+        
+        #----- transformación y dic automática
+        nums <- as.data.frame(dplyr::select_if(dataset1, is.numeric))
+        
+        var = names(nums)
+        
+        for(i in range(0:dim(var[2]))){
+                
+                
+        }
         #-------
         
         
@@ -156,6 +167,10 @@ dir.create( "./datasets/" )
 dataset1  <- fread("./datasetsOri/paquete_premium_202009.csv")
 dataset2  <- fread("./datasetsOri/paquete_premium_202011.csv")
 
+#---------
+
+
+#---------
 #----------------------- 06bp
 # ds<-dataset1
 # clase_binaria <- ifelse(ds$clase_ternaria == "CONTINUA", 0, 1)
