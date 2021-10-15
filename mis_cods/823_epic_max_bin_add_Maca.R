@@ -27,7 +27,7 @@ switch ( Sys.info()[['sysname']],
            else{directory.root  <- "~/Desktop/DM/1er_A?o/DMEyF"
            
            }},   #Windows
-         Linux   = { directory.root  <-  "~/buckets/b1/crudoB" } #Google Cloud
+         Linux   = { directory.root  <-  "~/buckets/b1" } #Google Cloud
 )
 setwd(directory.root)
 #setwd("~/Desktop/DM/1er_A?o/DMEyF")

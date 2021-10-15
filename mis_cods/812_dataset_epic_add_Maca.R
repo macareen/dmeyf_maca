@@ -17,7 +17,7 @@ switch ( Sys.info()[['sysname']],
                      else{directory.root  <- "~/Desktop/DM/1er_A?o/DMEyF"
                        
                      }},   #Windows
-         Linux   = { directory.root  <-  "~/buckets/b1/crudoB" } #Google Cloud
+         Linux   = { directory.root  <-  "~/buckets/b1" } #Google Cloud
 )
 setwd(directory.root)
 #setwd("~/Desktop/DM/1er_A?o/DMEyF")
@@ -425,7 +425,7 @@ AgregarVariables  <- function( dataset )
   
   #---- agregado automático de features: pesado para la memoria!!
   nums <- as.data.frame(dplyr::select_if(dataset, is.numeric))
-  memory.limit(size=20000)
+  #memory.limit(size=20000)
   datasetx<-as.data.frame(dataset)
   var = names(nums[,c(6:113)])
   
