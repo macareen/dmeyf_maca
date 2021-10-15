@@ -8,6 +8,7 @@ gc()
 
 require("data.table")
 library(dplyr)
+library(caret)
 
 switch ( Sys.info()[['sysname']],
          Windows = { directory.root  <-  "C:/Users/macar/Documents/Educacion/Maestria_DM/2021_2C/DMEF" },   #Windows
@@ -115,17 +116,43 @@ EnriquecerDataset <- function( dataset , arch_destino )
         dataset[ , cut_atm         := cut(atm,5) ]
         
         #----- transformación y dic automática
-        nums <- as.data.frame(dplyr::select_if(dataset1, is.numeric))
+        #dataset<-dataset1
+        nums <- as.data.frame(dplyr::select_if(dataset, is.numeric))
+        memory.limit(size=20000)
+        datasetx<-as.data.frame(dataset)
+        var = names(nums[,c(6:113)])
+
+        var2=var
+        for(i in var){ 
+                for(j in var2){
+                        if(i!=j){
+                        var_1<- datasetx[,i] * datasetx[,j] 
+                        datasetx<-cbind(datasetx,var_1)
+                        colnames(datasetx)[which(names(datasetx) == "var_1")]<-paste(i,j,sep="x")
+                        if(datasetx[,j]!=0 & !is.na(datasetx[,j])){
+                                var_2<-datasetx[,i] / datasetx[,j] 
+                                datasetx<-cbind(datasetx,var_2)
+                                colnames(datasetx)[which(names(datasetx) == "var_2")]<-paste(i,j,sep="_div_")
+                                                }}}
+                var_3 <- log(datasetx[,i])   
+                datasetx<-cbind(datasetx,var_3)
+                colnames(datasetx)[which(names(datasetx) == "var_3")]<-paste("log",i)
+                var2=var2[-1]
+                if (length(var2==0)){print("Si imprimo esto salen menos errores")}
+                      
+        } 
         
-        var = names(nums)
+        gc()
         
-        for(i in range(0:dim(var[2]))){
-                
-                
-        }
+        #cero_var_tr <- nearZeroVar(datasetx[158:(dim(datasetx)[2])],allowParallel = TRUE)
+        #cero_var_tr <- cero_var_tr[-73]
+        
+        #elimino varibles con varianza cercana a cero.
+        datasetx[,cero_var_tr] <- NULL
+        datast<-datasetx
         #-------
         
-        
+
         #valvula de seguridad para evitar valores infinitos
         #paso los infinitos a NULOS
         infinitos      <- lapply(names(dataset),function(.name) dataset[ , sum(is.infinite(get(.name)))])
