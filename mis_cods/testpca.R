@@ -49,5 +49,48 @@ get_experimento  <- function()
 dataset  <- fread(karch_dataset)
 #dataset2<-dataset
 #dataset2[-c("numero_de_cliente","foto_mes")]<-scale(dataset[-c("numero_de_cliente","foto_mes")])
+datasets_mini <- read_csv("C:/Users/macar/Downloads/datasets_mini.csv")
+exc<-c("numero_de_cliente","foto_mes")
+library(dplyr)
+a<-dplyr::select_if(select(datasets_mini, -one_of(exc)), is.numeric)
+#a<-a[ , which(apply(a, 2, var) != 0)]
+dataset.pcr<- prcomp(a, center = TRUE,scale. = TRUE)
+View(names(a))
 
-dataset.pcr<- prcomp(dataset[-c("numero_de_cliente","foto_mes")], center = TRUE,scale. = TRUE)
+library(missMDA)
+imputePCA(a,method="EM",ncp=1)
+
+library(irlba)
+j<-irlba(as.matrix(a), maxit = 100)#,  center = TRUE, scale. = FALSE)
+
+library(sparsepca)
+spca(a)
+
+c("cliente_edad" ,"cliente_antiguedad"  , 
+  "cproductos","tpaquete" ,  
+  "tpaquete"  ,  "tpaquete" ,  
+  "tcuentas"  ,"ccuenta_corriente"  ,  
+  "mcuenta_corriente_adicional", "mcuenta_corriente", 
+  "ccaja_ahorro"  ,  "mcaja_ahorro" ,  
+  "mcaja_ahorro_adicional","mcaja_ahorro_dolares" ,
+  "mdescubierto_preacordado", "ctarjeta_debito",
+  "ctarjeta_visa"  , "ctarjeta_master",
+  "cprestamos_prendarios", "mprestamos_prendarios",
+  "cprestamos_hipotecarios",  "cplazo_fijo" ,
+  "mplazo_fijo_dolares","mplazo_fijo_pesos" ,
+  "cinversion" , "minversion_pesos" ,
+  "minversion_dolares" ,  "cinversion"  ,  
+  "minversion"  ,"cseguro_vida"  , 
+  "cseguro_auto", "cseguro_vivienda"  ,
+  "cseguro_accidentes_personales",  "ccaja_seguridad" ,  
+  "cpayroll_trx" ,"mpayroll", 
+  "ccuenta_debitos_automaticos", "mcuenta_debitos_automaticos",
+  "ctarjeta_master_debitos_automaticos",  "mttarjeta_master_debitos_automaticos",
+  "cpagodeservicios"  , "mpagodeservicios"  ,
+  "cpagomiscuentas"  ,  "mpagomiscuentas",
+  "ccomisiones_mantenimiento","mcomisiones_mantenimiento"  ,
+  "cforex", "cforex_buy"  ,
+  "mforex_buy" ,  "cforex_sell" ,
+  "mforex_sell"  ,"ctransferencias_recibidas"  ,
+  "mtransferencias_recibidas"  , "ctransferencias_emitidas",
+  "mtransferencias_emitidas"  ,  "mes")
